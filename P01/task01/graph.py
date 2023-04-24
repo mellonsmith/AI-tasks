@@ -42,8 +42,4 @@ class Graph:
             edge_values[ next((i for i,e in enumerate(node_list) if e.name == edge.end.name) , -1)] = edge.value           
          t.add_row([node.name] + edge_values)
       print(t)
-            
-         
-
-                   
-            
+   
