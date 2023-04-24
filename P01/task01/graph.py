@@ -131,10 +131,14 @@ def uniform_cost_search(graph, start, end):
          queue.enqueue(new_path)
    return None
 
+
 def path_cost(path, graph):
-   cost = 0
-   for i in range(len(path)-1):
-      for edge in graph.nodes[next((i for i,v in enumerate(graph.nodes) if v.name == path[i]), -1)].edges:
-         if edge.end.name == path[i+1]:
-            cost += edge.value
-   return cost
+    cost = 0
+    current_node = graph.nodes[next((i for i,v in enumerate(graph.nodes) if v.name == path[0]), -1)]
+    for next_node_name in path[1:]:
+        for edge in current_node.edges:
+            if edge.end.name == next_node_name:
+                cost += edge.value
+                current_node = edge.end
+                break
+    return cost
