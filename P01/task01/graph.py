@@ -99,4 +99,42 @@ def breadth_first_search(graph, start, end):
             queue.enqueue(new_path)
     return None
 
-print(breadth_first_search(romania, 'Bi', 'Ti'))
+
+def depth_first_search(graph, start, end):
+   max_depth = 20
+   queue = Queue([])
+   queue.enqueue([start])
+   while queue:
+      path = queue.dequeue()
+      node = path[-1]
+      if node == end:
+         return path
+      if len(path) >= max_depth:
+         return None
+      for edge in graph.nodes[next((i for i,v in enumerate(graph.nodes) if v.name == node), -1)].edges:
+         new_path = list(path)
+         new_path.append(edge.end.name)
+         queue.enqueue(new_path)
+   return None
+
+def uniform_cost_search(graph, start, end):
+   queue = Queue([])
+   queue.enqueue([start])
+   while queue:
+      path = queue.dequeue()
+      node = path[-1]
+      if node == end:
+         return path
+      for edge in graph.nodes[next((i for i,v in enumerate(graph.nodes) if v.name == node), -1)].edges:
+         new_path = list(path)
+         new_path.append(edge.end.name)
+         queue.enqueue(new_path)
+   return None
+
+def path_cost(path, graph):
+   cost = 0
+   for i in range(len(path)-1):
+      for edge in graph.nodes[next((i for i,v in enumerate(graph.nodes) if v.name == path[i]), -1)].edges:
+         if edge.end.name == path[i+1]:
+            cost += edge.value
+   return cost
