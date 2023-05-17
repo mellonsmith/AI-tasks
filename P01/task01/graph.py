@@ -1,5 +1,6 @@
 from prettytable import PrettyTable
-from utils import * 
+from utils import *
+import heapq
 
 class Node:
 
@@ -79,10 +80,32 @@ class Queue:
     
     def fifo(self):
         return self.items[-1]
+     
     def lifo(self):
         return self.items[0]
-    def priority(self):
-        return self.items[0]
+     
+    def prio(self):
+        if self.is_empty():
+            return None
+        min_index = 0
+        for i in range(1, len(self.items)):
+            if self.items[i][0] < self.items[min_index][0]:
+                min_index = i
+        return self.items.pop(min_index)
+
+    def enqueue_with_priority(self, item, priority):
+        self.items.append((priority, item))
+
+    def dequeue_with_priority(self):
+        if self.is_empty():
+            return None
+        min_priority = float('inf')
+        min_index = 0
+        for i, (priority, _) in enumerate(self.items):
+            if priority < min_priority:
+                min_priority = priority
+                min_index = i
+        return self.items.pop(min_index)[1]
     
 
 def breadth_first_search(graph, start, end):
@@ -100,36 +123,41 @@ def breadth_first_search(graph, start, end):
     return None
 
 
-def depth_first_search(graph, start, end):
-   max_depth = 20
-   queue = Queue([])
-   queue.enqueue([start])
-   while queue:
-      path = queue.dequeue()
-      node = path[-1]
-      if node == end:
-         return path
-      if len(path) >= max_depth:
-         return None
-      for edge in graph.nodes[next((i for i,v in enumerate(graph.nodes) if v.name == node), -1)].edges:
-         new_path = list(path)
-         new_path.append(edge.end.name)
-         queue.enqueue(new_path)
-   return None
+def depth_first_search(graph, start, end, visited=None, path=None):
+    if visited is None:
+        visited = set()
+    if path is None:
+        path = [start]
+
+    if start == end:
+        return path
+
+    visited.add(start)
+    for edge in graph.nodes[next((i for i, v in enumerate(graph.nodes) if v.name == start), -1)].edges:
+        if edge.end.name not in visited:
+            new_path = path + [edge.end.name]
+            result = depth_first_search(graph, edge.end.name, end, visited, new_path)
+            if result is not None:
+                return result
+
+    return None
+
 
 def uniform_cost_search(graph, start, end):
-   queue = Queue([])
-   queue.enqueue([start])
-   while queue:
-      path = queue.dequeue()
-      node = path[-1]
-      if node == end:
-         return path
-      for edge in graph.nodes[next((i for i,v in enumerate(graph.nodes) if v.name == node), -1)].edges:
-         new_path = list(path)
-         new_path.append(edge.end.name)
-         queue.enqueue(new_path)
-   return None
+    queue = []
+    heapq.heappush(queue, (0, [start]))  # Use a priority queue with cost as the priority
+    while queue:
+        cost, path = heapq.heappop(queue)
+        node = path[-1]
+        if node == end:
+            return path
+        for edge in graph.nodes[next((i for i, v in enumerate(graph.nodes) if v.name == node), -1)].edges:
+            new_cost = cost + edge.value
+            new_path = list(path)
+            new_path.append(edge.end.name)
+            heapq.heappush(queue, (new_cost, new_path))
+    return None
+
 
 
 def path_cost(path, graph):
