@@ -129,18 +129,17 @@ class Labyrinth:
                 tentative_g_score = g_score[current] + 1
                 if neighbor not in open_list:
                     open_list.append(neighbor)
-                    g_score[neighbor] = tentative_g_score  # fixed
-                elif tentative_g_score < g_score[neighbor]:  # fixed
+                    g_score[neighbor] = tentative_g_score  
+                elif tentative_g_score < g_score[neighbor]: 
                     g_score[neighbor] = tentative_g_score
                 else:
                     continue
                 came_from[neighbor] = current
                 f_score[neighbor] = g_score[neighbor] + \
                     self.heuristic(*neighbor)
-        return None  # added
+        return None  
 
 
-    # def aStar(self):
 pygame.init()
 
 size = (500, 500)

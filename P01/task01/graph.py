@@ -71,7 +71,7 @@ class Queue:
     def __init__(self, edges):
         self.items = []
 
-    def is_empty(self):  # Methode hinzugefügt
+    def is_empty(self):  
         return len(self.items) == 0
 
     def enqueue(self, item):
@@ -90,7 +90,7 @@ class Queue:
         return self.items[0]
 
     def prio(self):
-        if self.isEmpty():  # Ändere "is_empty" zu "isEmpty"
+        if self.isEmpty():  
             return None
         min_index = 0
         for i in range(1, len(self.items)):
@@ -151,7 +151,6 @@ def depth_first_search(graph, start, end, visited=None, path=None):
 
 def uniform_cost_search(graph, start, end):
     queue = Queue([])
-    # Verwende enqueue_with_priority-Methode
     queue.enqueue_with_priority([start], 0)
 
     while not queue.is_empty():
