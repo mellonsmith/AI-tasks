@@ -76,8 +76,10 @@ class Wumpus:
                 
                 # deduce if there is a pit or wumpus by combining visited field
                 # and perception
-                # x direction
+                
                 for pair in fieldEventPairs:
+                    
+                    # x direction
                     clause = f"{pair[0]}{x}{y},"
                     if x + 1 < 5:
                         if x-1>0:
