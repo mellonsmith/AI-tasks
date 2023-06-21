@@ -1,62 +1,80 @@
 import random
+import eightQueens as EightQueens
 
-from eightQueens import EightQueens
 
-
-class EightQueensGA:
-    def __init__(self, population_size=100, iterations=100):
+class EightQueensGeneticAlgorithm:
+    def __init__(self, population_size=100, mutation_probability=0.1):
         self.population_size = population_size
-        self.iterations = iterations
-        self.problem = EightQueens()
-        self.population = self.generate_initial_population()
+        self.mutation_probability = mutation_probability
+        self.population = []
+        self.eq = EightQueens.EightQueens()
 
-    def generate_random_individual(self):
-        state = list(range(8))
-        random.shuffle(state)
-        return state
+    def solve(self):
+        self.initialize_population()
+        best_individual = None
+        count = 0
+        while (best_individual is None or best_individual["fitness"] > 0) and count < 100:
+            count += 1
+            new_population = []
 
-    def generate_initial_population(self):
-        return [self.generate_random_individual() for _ in range(self.population_size)]
+            for _ in range(self.population_size):
+                x = self.random_selection()
+                y = self.random_selection()
+                child = self.reproduce(x, y)
 
-    def fitness_function(self, individual):
-        return self.problem.cost_function(individual)
+                if random.random() < self.mutation_probability:
+                    child = self.mutate(child)
 
-    def crossover(self, parent1, parent2):
-        crossover_point = random.randint(1, 6)
-        child1 = parent1[:crossover_point] + parent2[crossover_point:]
-        child2 = parent2[:crossover_point] + parent1[crossover_point:]
-        return child1, child2
-
-    def mutation(self, individual):
-        mutation_point1 = random.randint(0, 7)
-        mutation_point2 = random.randint(0, 7)
-        individual[mutation_point1], individual[mutation_point2] = individual[mutation_point2], individual[mutation_point1]
-        return individual
-
-    def solve_eight_queens_ga(self):
-        for iteration in range(self.iterations):
-            fitness_scores = [self.fitness_function(
-                individual) for individual in self.population]
-            best_individual_index = fitness_scores.index(min(fitness_scores))
-            best_individual = self.population[best_individual_index]
-            print("Iteration:", iteration + 1)
-            print("Best Individual:", best_individual)
-            print("Fitness Score:", self.fitness_function(best_individual))
-            if self.fitness_function(best_individual) == 0:
-                break
-
-            new_population = [best_individual]
-            while len(new_population) < self.population_size:
-                parent1 = random.choice(self.population)
-                parent2 = random.choice(self.population)
-                child1, child2 = self.crossover(parent1, parent2)
-                child1 = self.mutation(child1)
-                child2 = self.mutation(child2)
-                new_population.extend([child1, child2])
+                new_population.append(child)
 
             self.population = new_population
+            best_individual = min(self.population, key=lambda x: x["fitness"])
+            print("Zustand:", best_individual["state"])
+            print("Fitness:", best_individual["fitness"])
+            print("Visuelle Darstellung:")
+            print(self.eq.visualize_state(best_individual["state"]))
+            print("###############")
+
+        return best_individual
+
+    def initialize_population(self):
+        self.population = []
+        for _ in range(self.population_size):
+            state = random.sample(range(8), 8)
+            fitness = self.calculate_fitness(state)
+            self.population.append({"state": state, "fitness": fitness})
+
+    def random_selection(self):
+        return random.choice(self.population)["state"]
+
+    def reproduce(self, x, y):
+        n = len(x)
+        c = random.randint(1, n)
+        child_state = x[:c] + y[c:]
+        child_fitness = self.calculate_fitness(child_state)
+        return {"state": child_state, "fitness": child_fitness}
+
+    def mutate(self, individual):
+        state = individual["state"]
+        mutated_state = state[:]
+        index = random.randint(0, 7)
+        new_value = random.randint(0, 7)
+        mutated_state[index] = new_value
+        fitness = self.calculate_fitness(mutated_state)
+        return {"state": mutated_state, "fitness": fitness}
+
+    def calculate_fitness(self, state):
+        return self.eq.cost_function(state)
 
 
-if __name__ == '__main__':
-    ga = EightQueensGA()
-    ga.solve_eight_queens_ga()
+# Beispielanwendung
+genetic_algorithm = EightQueensGeneticAlgorithm()
+solution = genetic_algorithm.solve()
+if (solution["fitness"] != 0):
+    print("Lösung nach 100 Durchläufen:")
+else:
+    print("Beste Lösung:")
+print("Zustand:", solution["state"])
+print("Fitness:", solution["fitness"])
+print("Visuelle Darstellung:")
+print(genetic_algorithm.eq.visualize_state(solution["state"]))

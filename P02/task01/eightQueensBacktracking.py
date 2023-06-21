@@ -1,49 +1,50 @@
+import eightQueens as EightQueens
+
+
 class EightQueensBacktracking:
     def __init__(self):
-        self.solutions = []
+        self.board_size = 8
+        self.solution = [None] * self.board_size
+        self.eq = EightQueens.EightQueens()
 
-    def solve_eight_queens_backtracking(self):
-        board = [[0 for _ in range(8)] for _ in range(8)]
-        self.backtrack(board, 0)
-        self.print_solutions()
+    def solve(self):
+        if self.backtrack(0):
+            return self.solution
+        else:
+            return None
 
-    def backtrack(self, board, row):
-        if row == 8:
-            self.save_solution(board)
-            return
+    def backtrack(self, col):
+        if col == self.board_size:
+            return True
 
-        for col in range(8):
-            if self.is_valid_position(board, row, col):
-                board[row][col] = 1
-                self.backtrack(board, row + 1)
-                board[row][col] = 0
+        for row in range(self.board_size):
+            if self.is_valid(row, col):
+                self.solution[col] = row
 
-    def is_valid_position(self, board, row, col):
-        for i in range(row):
-            if board[i][col] == 1:
+                if self.backtrack(col + 1):
+                    return True
+
+                self.solution[col] = None
+
+        return False
+
+    def is_valid(self, row, col):
+        for i in range(col):
+            # Überprüfe, ob Dame in der gleichen Reihe, Zeile oder Diagonale
+            if self.solution[i] == row or \
+               self.solution[i] - row == i - col or \
+               self.solution[i] - row == col - i or\
+               col == i:
                 return False
-
-            if col - (row - i) >= 0 and board[i][col - (row - i)] == 1:
-                return False
-
-            if col + (row - i) < 8 and board[i][col + (row - i)] == 1:
-                return False
-
         return True
 
-    def save_solution(self, board):
-        solution = []
-        for row in range(8):
-            for col in range(8):
-                if board[row][col] == 1:
-                    solution.append(col + 1)
-        self.solutions.append(solution)
 
-    def print_solutions(self):
-        for i, solution in enumerate(self.solutions):
-            print(f"Solution {i + 1}: {solution}")
+# Beispielanwendung
+backtracking = EightQueensBacktracking()
+solution = backtracking.solve()
 
-
-if __name__ == '__main__':
-    backtracking = EightQueensBacktracking()
-    backtracking.solve_eight_queens_backtracking()
+if solution is not None:
+    print("Lösung gefunden:")
+    print(backtracking.eq.visualize_state(solution))
+else:
+    print("Keine Lösung gefunden.")
