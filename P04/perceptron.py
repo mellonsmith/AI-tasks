@@ -56,7 +56,7 @@ class Perceptron:
             self.synaptic_weights += delta_weight	
     
     def think(self, inputs):
-        return self.sigmoid(np.dot(inputs, self.synaptic_weights)) 
+        return self.sigmoid(np.dot(inputs, self.synaptic_weights))
     
 
 if __name__ == "__main__":

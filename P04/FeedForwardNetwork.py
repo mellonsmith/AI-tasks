@@ -25,17 +25,17 @@ class FeedForwardNetwork:
         hidden_inputs = np.dot(inputs, self.weights_input_to_hidden)
         hidden_outputs = self.sigmoid(hidden_inputs)
         final_inputs = np.dot(hidden_outputs, self.weights_output_to_hidden)
-        outputs = self.sigmoid(final_inputs)
-        return hidden_outputs, outputs
+        final_outputs = self.sigmoid(final_inputs)
+        return hidden_outputs, final_outputs
 
     def train(self, inputs, targets, epochs):
         for i in range(epochs):
             # Forwardpropagation
-            hidden_outputs, outputs = self.think(inputs)
+            hidden_outputs, final_outputs = self.think(inputs)
             # Backwardpropagation
-            output_errors = targets - outputs
+            output_errors = targets - final_outputs
             hidden_errors = np.dot(output_errors, self.weights_output_to_hidden.transpose())
-            self.weights_output_to_hidden += self.learning_rate * np.dot(hidden_outputs.transpose(), output_errors * self.sigmoid_derivative(outputs))
+            self.weights_output_to_hidden += self.learning_rate * np.dot(hidden_outputs.transpose(), output_errors * self.sigmoid_derivative(final_outputs))
             self.weights_input_to_hidden += self.learning_rate * np.dot(inputs.transpose(), hidden_errors * self.sigmoid_derivative(hidden_outputs))
 
     
@@ -87,7 +87,7 @@ training_data_file = open("mnist_train_100.csv", 'r')
 training_data_list = training_data_file.readlines()
 training_data_file.close()
 
-test_data_file = open("mnist_test_full.csv", 'r')
+test_data_file = open("mnist_test_10.csv", 'r')
 test_data_list = test_data_file.readlines()
 test_data_file.close()
 
@@ -102,7 +102,7 @@ image_array = np.asfarray(test_inputs[0]).reshape((28,28))
 plt.imshow(image_array,cmap='Greys', interpolation='None')
 plt.show(block = True)
 
-
+print("before training: ")
 n.train(normalize(inputs[:100]), targets[:100], 500)
 test = normalize([test_inputs[0]])
 result = n.think(test)
