@@ -3,7 +3,7 @@ from multiprocessing import dummy
 from perceptron import *
 import matplotlib.pyplot as plt
 
-class NeuralNetwork:
+class FeedForwardNetwork:
     def __init__(self, input_nodes, hidden_nodes, output_nodes, learning_rate):
         self.input_nodes = input_nodes
         self.hidden_nodes = hidden_nodes
@@ -47,7 +47,7 @@ class NeuralNetwork:
 def read_data(data_list):
     inputs = []
     targets = []
-    skipfirst = True
+    skipfirst = False
 
     for data in data_list:
         if skipfirst:
@@ -78,49 +78,51 @@ def change_target_array(targets, output_n):
     return np.array(target_list)
 
 
-n = NeuralNetwork(784, 200, 10, 0.1)
+n = FeedForwardNetwork(784, 200, 10, 0.1)
 
 def softmax(predictions):
     return np.exp(predictions)/np.sum(np.exp(predictions), axis=1, keepdims=True)   
 
 
-training_data_file = open("mnist_train_100.csv", 'r')
-training_data_list = training_data_file.readlines()
-training_data_file.close()
+if __name__ == "__main__":
+    trainfile = "mnist_train_full.csv"
+    testfile = "mnist_test_full.csv"
+    showimages = False
+    
+    
+    
+    training_data_file = open(trainfile, 'r')
+    training_data_list = training_data_file.readlines()
+    training_data_file.close()
 
-test_data_file = open("mnist_test_10.csv", 'r')
-test_data_list = test_data_file.readlines()
-test_data_file.close()
+    test_data_file = open(testfile, 'r')
+    test_data_list = test_data_file.readlines()
+    test_data_file.close()
 
-inputs, targets = read_data(training_data_list)
-targets = change_target_array(targets, 10)
-test_inputs, test_targets = read_data(test_data_list)
+    inputs, targets = read_data(training_data_list)
+    targets = change_target_array(targets, 10)
+    test_inputs, test_targets = read_data(test_data_list)
+    
+    
+    
+    trainlen = len(inputs)
+    n.train(normalize(inputs[:trainlen]), targets[:trainlen], 500)
 
-
-#Example plot
-print("plotting image: ")
-image_array = np.asfarray(test_inputs[2]).reshape((28,28))
-plt.imshow(image_array,cmap='Greys', interpolation='None')
-plt.show(block = True)
-
-
-n.train(normalize(inputs[:100]), targets[:100], 500)
-test = normalize([test_inputs[2]])
-result = n.predict(test)
-print(softmax(result[0]), result)
-print(np.sum(softmax(result[0])), " ", np.sum(result))
-print("Predicted number:", np.argmax(result))
-
-'''
-n = NeuralNetwork(3, 1, 3, 0.1)
-#Dummy inputs and targets
-dummy_inputs = np.array([[ random.uniform(0.01, 0.99) for _ in range(3)] for _ in range(100)])  
-targets = np.array([ random.randint(0,2) for _ in range(100)])
-targets = change_target_array(targets, 3)
-n.train(dummy_inputs, targets, 500)
-input = np.array([[ random.uniform(0.01, 0.99) for _ in range(3)] for _ in range(1)])
-print(n.predict(input))
-'''
+    csvlen =len(test_inputs)
+    correct = 0
+    for i in range(csvlen):
+        if (showimages == True):
+            print("plotting image: ")
+            image_array = np.asfarray(test_inputs[i]).reshape((28,28))
+            plt.imshow(image_array,cmap='Greys', interpolation='None')
+            plt.show(block = True)
+        
+        
+        predicted= np.argmax(n.predict(normalize([test_inputs[i]])))
+        print("Predicted number:", predicted , "Correct number:", test_targets[i])
+        correct += 1 if predicted == test_targets[i] else 0
+        
+    print("Accuracy: ", correct/csvlen*100, "%")
 
 
 
